@@ -56,7 +56,7 @@ export function ProductList({ products }: { products: Product[] }) {
     };
 
     const productImages: Record<string, string> = {
-        'Neural Link V1': 'https://images.unsplash.com/photo-1593305841991-05c2a0a35653?auto=format&fit=crop&q=80&w=800',
+        'Classy Green Woman Dress': 'https://images.unsplash.com/flagged/photo-1585052201332-b8c0ce30972f?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&q=80&w=800',
         'Cyber Glass Pro': 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=800',
         'Void Runner X': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800',
         'Titanium Shell Laptop': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=800',
@@ -86,7 +86,7 @@ export function ProductList({ products }: { products: Product[] }) {
                         <CardContent className="p-8 space-y-2">
                             <div className="flex justify-between items-start">
                                 <h3 className="text-2xl font-bold text-white tracking-tight">{product.name}</h3>
-                                <span className="text-xl font-medium text-blue-400">$ {product.price}</span>
+                                <span className="text-lg font-medium text-blue-400">$ {product.price}</span>
                             </div>
                             <CardDescription className="text-slate-400 line-clamp-2">
                                 {product.description}
