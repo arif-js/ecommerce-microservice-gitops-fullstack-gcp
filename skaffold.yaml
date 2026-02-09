@@ -1,0 +1,50 @@
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: microservice-gitops-cloud
+build:
+  artifacts:
+    - image: shop
+      context: .
+      docker:
+        dockerfile: apps/shop/Dockerfile
+    - image: payment-service
+      context: .
+      docker:
+        dockerfile: apps/payment-service/Dockerfile
+    - image: order-service
+      context: .
+      docker:
+        dockerfile: apps/order-service/Dockerfile
+manifests:
+  rawYaml:
+    - infrastructure/k8s/local/*.yaml
+deploy:
+  kubectl: {}
+
+profiles:
+  - name: cloud
+    deploy:
+      helm:
+        releases:
+          - name: shop
+            chartPath: infrastructure/helm/base-service
+            valuesFiles:
+              - infrastructure/helm/base-service/values.yaml
+            setValueTemplates:
+              image.repository: "{{.IMAGE_REPO_shop}}"
+              image.tag: "{{.IMAGE_TAG_shop}}"
+          - name: payment-service
+            chartPath: infrastructure/helm/base-service
+            valuesFiles:
+              - infrastructure/helm/base-service/values.yaml
+            setValueTemplates:
+              image.repository: "{{.IMAGE_REPO_payment_service}}"
+              image.tag: "{{.IMAGE_TAG_payment_service}}"
+          - name: order-service
+            chartPath: infrastructure/helm/base-service
+            valuesFiles:
+              - infrastructure/helm/base-service/values.yaml
+            setValueTemplates:
+              image.repository: "{{.IMAGE_REPO_order_service}}"
+              image.tag: "{{.IMAGE_TAG_order_service}}"

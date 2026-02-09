@@ -1,0 +1,8 @@
+replicaCount: 1
+
+image:
+  repository: us-central1-docker.pkg.dev/your-project/repo/shopProxy
+  tag: latest
+
+service:
+  port: 3000

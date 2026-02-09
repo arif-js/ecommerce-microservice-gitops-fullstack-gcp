@@ -1,0 +1,24 @@
+{
+  "name": "microservice-gitops-cloud",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "prisma:generate": "npm run prisma:generate --workspace=@repo/database",
+    "prisma:seed": "npx prisma db seed --schema=packages/database/prisma/schema.prisma"
+  },
+  "prisma": {
+    "seed": "ts-node packages/database/prisma/seed.ts"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "prettier": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}

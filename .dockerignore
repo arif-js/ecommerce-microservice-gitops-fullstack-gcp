@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+.terraform
+.keys
+.git
+*.log
+.DS_Store
+infrastructure/terraform/terraform.tfstate*
