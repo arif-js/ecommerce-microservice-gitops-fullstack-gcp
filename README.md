@@ -17,7 +17,8 @@ graph TD
     end
 
     subgraph "GCP Environment (Serverless GitOps)"
-        Cloud --> CB[Cloud Build Trigger]
+        Cloud --> GH[GitHub Actions]
+        GH --> CB[Cloud Build]
         CB --> Build[Docker Build & Push]
         Build --> AR[Artifact Registry]
         AR --> CR[Cloud Run Services]
@@ -47,7 +48,7 @@ Building microservices is notoriously difficult. This project solves four primar
 | **Order Service** | NestJS | Manages order lifecycle and database persistence. |
 | **Shared DB** | Prisma & Neon | Managed PostgreSQL with typesafe Prisma access. |
 | **Observability** | OTel | End-to-end distributed tracing via Google Cloud Trace. |
-| **Infrastructure** | Cloud Build | GitOps-driven serverless deployment to Cloud Run. |
+| **Infrastructure** | GitHub Actions | GitOps-driven deployment using Cloud Build & Cloud Run. |
 
 ---
 
@@ -130,10 +131,11 @@ gcloud builds submit --config cloudbuild.yaml \
 ```
 
 #### Step 3: Automated GitOps (Continuous Deployment)
-1. Go to **Cloud Build Triggers** in the GCP Console.
-2. Connect this repository to GitHub.
-3. Create a trigger that executes `cloudbuild.yaml` on every push to `main`.
-4. Add all required secrets to the trigger's **Substitutions** block.
+
+1. **Service Account**: Create a GCP Service Account with `Cloud Build Admin`, `Cloud Run Admin`, and `Storage Admin` roles.
+2. **GitHub Secrets**: Add the Service Account JSON key as `GCP_SA_KEY` in your GitHub Repo Secrets.
+3. **App Secrets**: Add your database and API keys as repository secrets (`DATABASE_URL`, `STRIPE_SECRET_KEY`, etc.).
+4. **Push to Main**: Any push to the `main` branch will now automatically trigger a deployment via GitHub Actions.
 
 ---
 
@@ -143,4 +145,4 @@ gcloud builds submit --config cloudbuild.yaml \
 The project includes a shared `@repo/otel` package that automatically propagates trace contexts across services. In production, traces are exported directly to **Google Cloud Trace**, providing a full waterfall view of request execution.
 
 ### GitOps Workflow
-Any changes pushed to the `main` branch trigger a Cloud Build execution. The pipeline builds new Docker images, pushes them to the Artifact Registry, and performs a zero-downtime deployment to Cloud Run.
+Any changes pushed to the `main` branch trigger a GitHub Actions workflow. The workflow authenticates with GCP, executes a Cloud Build task to build new Docker images, and performs a zero-downtime rolling deployment to Cloud Run.
