@@ -1,24 +1,16 @@
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat openssl
-
 WORKDIR /app
 
-# Copy root configs
 COPY package.json package-lock.json ./
 COPY packages/ ./packages/
 COPY apps/shop/package.json ./apps/shop/
-
-# Install dependencies
 RUN npm install
 
-# Copy application source
 COPY apps/shop/ ./apps/shop/
-
-# Build shared packages
 RUN npm run build --workspace=@repo/otel
 RUN npm run build --workspace=@repo/database
 
-# Build the app
 WORKDIR /app/apps/shop
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
@@ -28,20 +20,23 @@ ARG ORDER_SERVICE_URL
 ENV ORDER_SERVICE_URL=$ORDER_SERVICE_URL
 RUN npm run build
 
-# Production stage
 FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat openssl
-
+RUN apk add --no-cache openssl
 WORKDIR /app
 
-# Copy dependencies and shared packages
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/apps/shop ./apps/shop
+ENV NODE_ENV=production
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Run from the shop app directory
-WORKDIR /app/apps/shop
+# Copy standalone build and static files
+COPY --from=builder /app/apps/shop/public ./apps/shop/public
+COPY --from=builder /app/apps/shop/.next/standalone ./
+COPY --from=builder /app/apps/shop/.next/static ./apps/shop/.next/static
+
+USER nextjs
 EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Use npx to find the binary in the monorepo root node_modules
-CMD ["npx", "next", "start"]
+# Main entrypoint for standalone mode
+CMD ["node", "apps/shop/server.js"]

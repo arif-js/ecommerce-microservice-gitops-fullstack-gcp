@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'standalone',
     transpilePackages: ['@repo/otel', '@repo/database'],
     async rewrites() {
         return [
