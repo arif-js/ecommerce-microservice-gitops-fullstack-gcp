@@ -9,14 +9,6 @@ export function Hero() {
         <section className="relative py-20 overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -z-10 w-full h-[500px] bg-blue-500/10 blur-[120px]" />
             <div className="text-center space-y-6">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-medium text-slate-400"
-                >
-                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                    Next.js 15 + NestJS 11 Powered
-                </motion.div>
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
