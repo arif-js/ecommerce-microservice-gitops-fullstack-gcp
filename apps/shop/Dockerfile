@@ -8,6 +8,7 @@ COPY apps/shop/package.json ./apps/shop/
 RUN npm install
 
 COPY apps/shop/ ./apps/shop/
+RUN mkdir -p apps/shop/public
 RUN npm run build --workspace=@repo/otel
 RUN npm run build --workspace=@repo/database
 
