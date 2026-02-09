@@ -10,9 +10,9 @@ async function bootstrap() {
     try {
         const app = await NestFactory.create(AppModule);
         app.enableCors();
-        const port = process.env.PORT || 8080;
+        const port = Number(process.env.PORT) || 8080;
         await app.listen(port, '0.0.0.0');
-        console.log(`Service is running on port: ${port}`);
+        console.log(`Service is listening on port: ${port}`);
     } catch (error) {
         console.error('FATAL STARTUP ERROR:', error);
         process.exit(1);

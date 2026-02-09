@@ -37,4 +37,4 @@ COPY --from=builder /app/apps/payment-service/package.json ./package.json
 COPY --from=builder /app/apps/payment-service/dist ./dist
 
 EXPOSE 8080
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "node $(find dist -name main.js)"]
