@@ -139,6 +139,12 @@ gcloud builds submit --config cloudbuild.yaml \
 
 ---
 
+## UI
+<img width="1512" height="761" alt="Screenshot 2026-02-09 at 10 51 57 PM" src="https://github.com/user-attachments/assets/3235ee3b-2e75-45df-a6d7-7e69f247b3bd" />
+<img width="1500" height="761" alt="Screenshot 2026-02-09 at 10 53 29 PM" src="https://github.com/user-attachments/assets/892c600c-02e3-4fa6-91a7-8b16a1d0bcc9" />
+<img width="1512" height="761" alt="Screenshot 2026-02-09 at 10 52 06 PM" src="https://github.com/user-attachments/assets/7b31b5d4-70a7-4ded-b976-a85c9c546f7e" />
+<img width="1249" height="762" alt="Screenshot 2026-02-09 at 10 52 57 PM" src="https://github.com/user-attachments/assets/dbcea51a-65d8-44d8-8591-8f49077fd4ae" />
+
 ## 🔍 Advanced Features
 
 ### Distributed Tracing (OTel)
