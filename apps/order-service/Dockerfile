@@ -36,5 +36,5 @@ COPY --from=builder /app/apps/order-service/package.json ./package.json
 # Copy built application
 COPY --from=builder /app/apps/order-service/dist ./dist
 
-EXPOSE 3002
-CMD ["node", "dist/apps/order-service/src/main.js"]
+EXPOSE 8080
+CMD ["node", "dist/main.js"]
