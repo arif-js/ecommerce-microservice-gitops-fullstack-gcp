@@ -41,3 +41,4 @@ ENV HOSTNAME="0.0.0.0"
 
 # Main entrypoint for standalone mode
 CMD ["node", "apps/shop/server.js"]
+

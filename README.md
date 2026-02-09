@@ -1,6 +1,6 @@
-# microservice-gitops-cloud
+# Slick Shop: Microservices Monorepo
 
-A high-performance, developer-first microservices platform built with **Next.js 15**, **NestJS 11**, and **Google Cloud Platform (GCP)**.
+A professional, high-performance microservices platform architected with **Next.js 15**, **NestJS 11**, and **Google Cloud Platform (GCP)**.
 
 ## 🗺 System Architecture & Workflow
 
@@ -16,40 +16,38 @@ graph TD
         SkDev --> Sync[Hot-Reload / Sync]
     end
 
-    subgraph "GCP Environment (Production-Ready)"
-        Cloud --> TF[Terraform IaC]
-        TF --> GKE[GKE Autopilot]
-        TF --> CSQL[Cloud SQL Postgres]
-        Cloud --> SkRun[Skaffold Run -p cloud]
-        SkRun --> Helm[Helm Charts]
+    subgraph "GCP Environment (Serverless GitOps)"
+        Cloud --> CB[Cloud Build Trigger]
+        CB --> Build[Docker Build & Push]
+        Build --> AR[Artifact Registry]
+        AR --> CR[Cloud Run Services]
+        CR --> DB_Remote[Neon managed PostgreSQL]
     end
 
     subgraph "Shared Stack"
-        MK & GKE --> Auth[Clerk Auth]
-        MK & GKE --> Pay[Stripe API]
-        MK & GKE --> OTel[OpenTelemetry Tracing]
+        CR & MK --> Auth[Clerk Auth]
+        CR & MK --> Pay[Stripe API]
+        CR & MK --> OTel[OpenTelemetry & GCP Trace]
     end
 ```
-
-## 🎯 The Problems We Solve
 
 Building microservices is notoriously difficult. This project solves four primary pain points:
 
 1.  **Monolithic Complexity in Microservices**: Most monorepos suffer from "dependency hell." We solve this by using **npm workspaces** and shared packages (`@repo/database`, `@repo/otel`) to ensure clean separation while maintaining code reuse.
 2.  **Slow Local Development Feedback Loops**: Waiting for Docker builds during development is a productivity killer. We use **Skaffold** for instant hot-reloading within a local Kubernetes cluster.
-3.  **High Cloud Costs for Labs/Dev**: Cloud bills can skyrocket. Our infrastructure is engineered for **Zero Cost** using GCP's Free Tier and Cloud SQL's smallest instance sizes.
-4.  **Inconsistent Environment Parity**: "It works on my machine" is solved by using identical **Helm charts** and **Kubernetes manifests** for both local dev and production.
+3.  **Complex Infrastructure Management**: Managing GKE clusters can be overwhelmed. We utilize **GCP Cloud Run** for a serverless, "pay-as-you-go" scaling model that abstracts infrastructure management.
+4.  **Inconsistent Environment Parity**: "It works on my machine" is solved by using identical configuration patterns across local development and production environments.
 
 ## 🛠 Component Utility
 
 | Component | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Frontend** | Next.js 15 | Premium UI/UX with Server Components for SEO and speed. |
+| **Frontend** | Next.js 15 | Premium UI/UX with Server Components and dynamic rewrites. |
 | **Payment Service** | NestJS | Securely handles Stripe Checkout and Webhooks. |
 | **Order Service** | NestJS | Manages order lifecycle and database persistence. |
-| **Shared DB** | Prisma | Typesafe database access shared across all backend services. |
-| **Observability** | OTel | End-to-end distributed tracing to debug across service boundaries. |
-| **Infrastructure** | Terraform | Reproducible GCP environment (VPC, SQL, GKE). |
+| **Shared DB** | Prisma & Neon | Managed PostgreSQL with typesafe Prisma access. |
+| **Observability** | OTel | End-to-end distributed tracing via Google Cloud Trace. |
+| **Infrastructure** | Cloud Build | GitOps-driven serverless deployment to Cloud Run. |
 
 ---
 
@@ -113,40 +111,36 @@ skaffold dev
 
 ---
 
-### 🌩 3. Option B: GCP Cloud Deployment
+### 🌩 2. Option B: GCP Cloud Deployment
 
-Follow these steps to deploy a production-ready environment on **Google Cloud Platform**.
+This project uses a serverless GitOps approach with **Cloud Run** and **Cloud Build**.
 
 #### Step 1: GCP Authentication
-Log in to GCP using Application Default Credentials (ADC).
+Log in to GCP and set your project.
 ```bash
-gcloud auth application-default login
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
 ```
 
-#### Step 2: Provision Infrastructure
-Provision the VPC, Cloud SQL (PostgreSQL), and GKE Autopilot cluster.
+#### Step 2: Manual Deployment (First Time)
+Submit the build to Cloud Build with the necessary secrets as substitutions.
 ```bash
-cd infrastructure/terraform
-terraform init
-terraform apply -var="project_id=YOUR_PROJECT_ID" -var="db_password=YOUR_PASSWORD" -var="use_gcp=true"
+gcloud builds submit --config cloudbuild.yaml \
+  --substitutions=_DATABASE_URL="...",_CLERK_SECRET_KEY="...",_STRIPE_SECRET_KEY="..." .
 ```
 
-#### Step 3: Deploy to GKE
-Once Terraform finishes, configure `kubectl` and deploy your services.
-```bash
-# Connect to your new cluster
-gcloud container clusters get-credentials microservice-gitops-cloud-gke --region us-central1
-
-# Deploy via Helm or Skaffold
-skaffold run -p cloud
-```
+#### Step 3: Automated GitOps (Continuous Deployment)
+1. Go to **Cloud Build Triggers** in the GCP Console.
+2. Connect this repository to GitHub.
+3. Create a trigger that executes `cloudbuild.yaml` on every push to `main`.
+4. Add all required secrets to the trigger's **Substitutions** block.
 
 ---
 
-## � Advanced Features
+## 🔍 Advanced Features
 
 ### Distributed Tracing (OTel)
-Open the **Cloud Trace** dashboard in GCP. Every request from the **Shop** frontend through the **Payment Service** and into the **Database** is visualized as a single trace, allowing you to find bottlenecks in milliseconds.
+The project includes a shared `@repo/otel` package that automatically propagates trace contexts across services. In production, traces are exported directly to **Google Cloud Trace**, providing a full waterfall view of request execution.
 
-### GitOps Ready
-The `infrastructure/k8s/argo` folder contains manifests that allow you to connect this repo to **ArgoCD**. Any code merge to `main` will automatically trigger a deployment to your GKE cluster. Proxy
+### GitOps Workflow
+Any changes pushed to the `main` branch trigger a Cloud Build execution. The pipeline builds new Docker images, pushes them to the Artifact Registry, and performs a zero-downtime deployment to Cloud Run.
